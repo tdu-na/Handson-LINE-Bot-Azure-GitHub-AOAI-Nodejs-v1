@@ -33,18 +33,73 @@ app.use(`/${BASE_PUBLIC_DIR}`, express.static(BASE_PUBLIC_DIR));
 // about the middleware, please refer to doc
 app.post('/callback', line.middleware(config), (req, res) => {
   console.log('start');
+  // console.log(req.body);
   Promise
-    .all(req.body.events.map(handleEvent))
-    .then((result) => res.json(result))
-    .catch((err) => {
-      console.error(err);
-      res.status(500).end();
-    });
+  .all(req.body.events.map(handleEvent))
+  .then((result) => res.json(result))
+  .catch((err) => {
+    console.error(err);
+    res.status(500).end();
+  });
 });
 
 // event handler
 async function handleEvent(event) {
-    const userId = event.source.userId;
+  const userId = event.source.userId;
+  let userGender = "";
+  let userAge = "";
+  let userBirthPlace = "";
+  let userResidence = "";
+  let userResidenceForm = "";
+  let userOccupation = "";
+  let userAnswer = "";
+  let waitingFor = ""; // 次に入力を求める内容を格納する変数
+  
+  // 
+
+
+  // event.message.textが「性別、年齢、出身地域、居住地域、居住形態、職業」のいずれかの場合、waitngForに格納
+  if (event.message.text === "性別" || event.message.text === "年齢" || event.message.text === "出身地域" || event.message.text === "居住地域" || event.message.text === "居住形態" || event.message.text === "職業") {
+    waitingFor = event.message.text;
+  } else {
+    userAnswer = event.message.text;
+  }
+  switch (waitingFor) {
+    case "性別":
+      userGender = userAnswer;
+      waitingFor = ""; // 次の質問に移る
+      break;
+    case "年齢":
+      userAge = userAnswer;
+      waitingFor = "";
+      break;
+    case "出身地域":
+      userBirthPlace = userAnswer;
+      waitingFor = "";
+      break;
+    case "居住地域":
+      userResidence = userAnswer;
+      waitingFor = "";
+      break;
+    case "居住形態":
+      userResidenceForm = userAnswer;
+      waitingFor = "";
+      break;
+    case "職業":
+      userOccupation = userAnswer;
+      waitingFor = "";
+      break;
+    default:
+  }
+
+  console.log("userAnswer =", userAnswer);
+  console.log("userGender =", userGender);
+  console.log("userAge =", userAge);
+  console.log("userBirthPlace =", userBirthPlace);
+  console.log("userResidence =", userResidence);
+  console.log("userResidenceForm =", userResidenceForm);
+  console.log("userOccupation =", userOccupation);
+
   
     if (event.type !== 'message' && event.type !== 'postback') {
       // ignore non-text-message event
@@ -63,116 +118,407 @@ async function handleEvent(event) {
         });
       }
     
-    } else if (event.message.type === 'text') {
-      if (event.message.text === 'flex') {
-        //https://developers.line.biz/ja/reference/messaging-api/#flex-message
-        return client.replyMessage({
-          replyToken: event.replyToken,
-          messages: [{
-            type: 'flex',
-            altText: 'item list',
-            contents: flexMsg
-          }]
-        });
-      } else if (event.message.text === 'quick') {
+    } else if (event.message.text === '性別') {
         //https://developers.line.biz/ja/reference/messaging-api/#quick-reply
         return client.replyMessage({
           replyToken: event.replyToken,
           messages: [{
             type: 'text',
-            text: 'ステッカー欲しいですか❓YesかNoで答えてください, もしくは素敵な写真送って❗️',
+            text: '性別はなんですか？',
             "quickReply": {
               "items": [
                 {
                   "type": "action",
                   "action": {
-                    "type":"postback",
-                    "label":"Yes",
-                    "data": "sticker",
-                    "displayText":"ステッカーください❗️"
+                    "type":"message",
+                    "label":"男性",
+                    "text": "男性",
                   }
                 },
                 {
                   "type": "action",
                   "action": {
                     "type":"message",
-                    "label":"No",
-                    "text":"不要。"
+                    "label":"女性",
+                    "text":"女性",
                   }
                 },
                 {
                   "type": "action",
                   "action": {
-                    "type": "camera",
-                    "label": "camera"
+                    "type":"message",
+                    "label":"その他",
+                    "text":"その他",
                   }
                 }
               ]
             }
           }]
         });
+      } else if (event.message.text === '年齢') {
+        //https://developers.line.biz/ja/reference/messaging-api/#quick-reply
+        return client.replyMessage({
+          replyToken: event.replyToken,
+          messages: [{
+            type: 'text',
+            text: '年齢はいくつですか？',
+            "quickReply": {
+              "items": [
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"20歳未満",
+                    "text": "20歳未満",
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"20代",
+                    "text":"20代",
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"30代",
+                    "text":"30代"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"40代",
+                    "text":"40代"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"50代",
+                    "text":"50代"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"60代",
+                    "text":"60代"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"70代",
+                    "text":"70代"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"80代",
+                    "text":"80代"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"90代",
+                    "text":"90代"
+                  }
+                }
+              ]
+            }
+          }]
+        });
+      } else if (event.message.text === '出身地域') {
+        //https://developers.line.biz/ja/reference/messaging-api/#quick-reply
+        return client.replyMessage({
+          replyToken: event.replyToken,
+          messages: [{
+            type: 'text',
+            text: '出身地域はどこですか？',
+            "quickReply": {
+              "items": [
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"北海道",
+                    "text":"北海道"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"東北",
+                    "text":"東北"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"関東",
+                    "text":"関東"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"中部",
+                    "text":"中部"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"近畿",
+                    "text":"近畿"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"中国",
+                    "text":"中国"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"四国",
+                    "text":"四国"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"九州・沖縄",
+                    "text":"九州・沖縄"
+                  }
+                },
+                {
+                  "type": "action",
+                  "action": {
+                    "type":"message",
+                    "label":"海外",
+                    "text":"海外"
+                  }
+                }
+              ]
+            }
+          }]
+        });
+    } else if (event.message.text === '居住地域') {
+      //https://developers.line.biz/ja/reference/messaging-api/#quick-reply
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{
+          type: 'text',
+          text: '居住地域はどこですか？',
+          "quickReply": {
+            "items": [
+              {
+                "type": "action",
+                "action": {
+                  "type":"message",
+                  "label":"北海道",
+                  "text":"北海道"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "type":"message",
+                  "label":"東北",
+                  "text":"東北"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "type":"message",
+                  "label":"関東",
+                  "text":"関東"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "type":"message",
+                  "label":"中部",
+                  "text":"中部"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "type":"message",
+                  "label":"近畿",
+                  "text":"近畿"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "type":"message",
+                  "label":"中国",
+                  "text":"中国"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "type":"message",
+                  "label":"四国",
+                  "text":"四国"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "type":"message",
+                  "label":"九州・沖縄",
+                  "text":"九州・沖縄"
+                }
+              },
+              {
+                "type": "action",
+                "action": {
+                  "type":"message",
+                  "label":"海外",
+                  "text":"海外"
+                }
+              }
+            ]
+          }
+        }]
+      });
+  } else if (event.message.text === '居住形態') {
+    //https://developers.line.biz/ja/reference/messaging-api/#quick-reply
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{
+        type: 'text',
+        text: '居住形態はなんですか？',
+        "quickReply": {
+          "items": [
+            {
+              "type": "action",
+              "action": {
+                "type":"message",
+                "label":"都市部",
+                "text":"都市部"
+              }
+            },
+            {
+              "type": "action",
+              "action": {
+                "type":"message",
+                "label":"郊外",
+                "text":"郊外"
+              }
+            },
+            {
+              "type": "action",
+              "action": {
+                "type":"message",
+                "label":"農村部",
+                "text":"農村部"
+              }
+            }
+          ]
+        }
+      }]
+    });
+} else if (event.message.text === '職業') {
+  //https://developers.line.biz/ja/reference/messaging-api/#quick-reply
+  return client.replyMessage({
+    replyToken: event.replyToken,
+    messages: [{
+      type: 'text',
+      text: '職業はなんですか？',
+      "quickReply": {
+        "items": [
+          {
+            "type": "action",
+            "action": {
+              "type":"message",
+              "label":"正社員",
+              "text":"正社員"
+            }
+          },
+          {
+            "type": "action",
+            "action": {
+              "type":"message",
+              "label":"契約社員",
+              "text":"契約社員"
+            }
+          },
+          {
+            "type": "action",
+            "action": {
+              "type":"message",
+              "label":"派遣社員",
+              "text":"派遣社員"
+            }
+          },
+          {
+            "type": "action",
+            "action": {
+              "type":"message",
+              "label":"パート・アルバイト",
+              "text":"パート・アルバイト"
+            }
+          },
+          {
+            "type": "action",
+            "action": {
+              "type":"message",
+              "label":"自営業",
+              "text":"自営業"
+            }
+          },
+          {
+            "type": "action",
+            "action": {
+              "type":"message",
+              "label":"無職（学生、専業主婦・主夫、失業者など）",
+              "text":"無職（学生、専業主婦・主夫、失業者など）"
+            }
+          }
+        ]
       }
-    
-    } else if (event.message.type === 'image') {
-      //https://developers.line.biz/ja/reference/messaging-api/#image-message
-      const stream = await blobClient.getMessageContent(event.message.id);
-      const contents = await getStreamData(stream);
-      const uploadFileName = `${crypto.randomBytes(20).toString('hex')}.jpg`;
-      const savePath = path.join(__dirname, BASE_PUBLIC_DIR, uploadFileName);
-      fs.appendFile(savePath, Buffer.concat(contents), (err) => {
-        if (err) throw err;
-        console.log("success");
-      });
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'image',
-          originalContentUrl: `${BASE_URL}/${BASE_PUBLIC_DIR}/${uploadFileName}`,
-          previewImageUrl: `${BASE_URL}/${BASE_PUBLIC_DIR}/${uploadFileName}`
-        }]
-      });
-    } else if (event.message.type === 'audio') {
-      //https://developers.line.biz/ja/reference/messaging-api/#audio-message
-      //durationはこれでとれそう？ > https://www.npmjs.com/package/mp3-duration
-      const stream = await blobClient.getMessageContent(event.message.id);
-      const contents = await getStreamData(stream);
-      const uploadFileName = `${crypto.randomBytes(20).toString('hex')}.mp3`;
-      const savePath = path.join(__dirname, BASE_PUBLIC_DIR, uploadFileName);
-      fs.appendFile(savePath, Buffer.concat(contents), (err) => {
-        if (err) throw err;
-        console.log("success");
-      });
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'audio',
-          originalContentUrl: `${BASE_URL}/${BASE_PUBLIC_DIR}/${uploadFileName}`,
-          duration: 60000
-        }]
-      });
-    } else if (event.message.type === 'location') {
-      //https://developers.line.biz/ja/reference/messaging-api/#location-message
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'location',
-          title: 'my location',
-          address: event.message.address,
-          latitude: event.message.latitude,
-          longitude: event.message.longitude
-        }]
-      });
-    }
+    }]
+  });
+}
   
 
     // create a echoing text message
-    const echo = { type: 'text', text: event.message.text };
+    // const echo = { type: 'text', text: event.message.text };
 
-    // use reply API
-    return client.replyMessage({
-      replyToken: event.replyToken,
-      messages: [echo],
-    });
+    // // use reply API
+    // return client.replyMessage({
+    //   replyToken: event.replyToken,
+    //   messages: [echo],
+    // });
 }
 
 const getStreamData = async (stream)  => {
